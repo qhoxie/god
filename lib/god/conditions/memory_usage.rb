@@ -68,6 +68,8 @@ module God
         
         history = "[" + @timeline.map { |x| "#{x > self.above ? '*' : ''}#{x}kb" }.join(", ") + "]"
         
+        self.watch.memory_usage = @timeline.last
+
         if @timeline.select { |x| x > self.above }.size >= self.times.first
           self.info = "memory out of bounds #{history}"
           return true

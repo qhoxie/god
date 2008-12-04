@@ -7,7 +7,7 @@ module God
     def autostart?; @autostart; end
     
     # api
-    attr_accessor :state, :behaviors, :metrics, :directory
+    attr_accessor :state, :behaviors, :metrics, :directory, :cpu_usage, :memory_usage
     
     def initialize
       @autostart ||= true
