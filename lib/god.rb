@@ -50,11 +50,21 @@ require 'god/conditions/http_response_code'
 require 'god/conditions/disk_usage'
 require 'god/conditions/complex'
 require 'god/conditions/simple_response'
+require 'god/conditions/file_mtime'
 
 require 'god/contact'
 require 'god/contacts/email'
+require 'god/contacts/webhook'
+begin
+  require 'god/contacts/twitter'
+rescue LoadError
+end
 begin
   require 'god/contacts/jabber'
+rescue LoadError
+end
+begin
+  require 'god/contacts/campfire'
 rescue LoadError
 end
 
@@ -139,7 +149,7 @@ class Module
 end
 
 module God
-  VERSION = '0.7.9'
+  VERSION = '0.7.11'
   
   LOG_BUFFER_SIZE_DEFAULT = 100
   PID_FILE_DIRECTORY_DEFAULTS = ['/var/run/god', '~/.god/pids']
@@ -470,6 +480,19 @@ module God
       info[name] = {:state => w.state, :group => w.group}
     end
     info
+  end
+  
+  # Send a signal to each task.
+  #   +name+ is the String name of the task or group
+  #   +signal+ is the signal to send. e.g. HUP, 9
+  #
+  # Returns String[]:task_names
+  def self.signal(name, signal)
+    items = Array(self.watches[name] || self.groups[name]).dup
+    jobs = []
+    items.each { |w| jobs << Thread.new { w.signal(signal) } }
+    jobs.each { |j| j.join }
+    items.map { |x| x.name }
   end
   
   # Log lines for the given task since the specified time.

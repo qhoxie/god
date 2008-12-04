@@ -2,7 +2,7 @@ module God
   class Process
     WRITES_PID = [:start, :restart]
     
-    attr_accessor :name, :uid, :gid, :log, :start, :stop, :restart, :unix_socket, :chroot, :env
+    attr_accessor :name, :uid, :gid, :log, :log_cmd, :start, :stop, :restart, :unix_socket, :chroot, :env
     
     def initialize
       self.log = '/dev/null'
@@ -12,6 +12,7 @@ module God
       @user_log = false
       @pid = nil
       @unix_socket = nil
+      @log_cmd = nil
     end
     
     def alive?
@@ -158,6 +159,15 @@ module God
       end
     end
     
+    # Send the given signal to this process.
+    #
+    # Returns nothing
+    def signal(sig)
+      sig = sig.to_i if sig.to_i != 0
+      applog(self, :info, "#{self.name} sending signal '#{sig}' to pid #{self.pid}")
+      ::Process.kill(sig, self.pid) rescue nil
+    end
+    
     def start!
       call_action(:start)
     end
@@ -274,7 +284,11 @@ module God
         Dir.chdir "/"
         $0 = command
         STDIN.reopen "/dev/null"
-        STDOUT.reopen file_in_chroot(self.log), "a"
+        if self.log_cmd
+          STDOUT.reopen IO.popen(self.log_cmd, "a") 
+        else
+          STDOUT.reopen file_in_chroot(self.log), "a"        
+        end
         STDERR.reopen STDOUT
         
         # close any other file descriptors

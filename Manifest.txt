@@ -31,6 +31,7 @@ lib/god/conditions/complex.rb
 lib/god/conditions/cpu_usage.rb
 lib/god/conditions/degrading_lambda.rb
 lib/god/conditions/disk_usage.rb
+lib/god/conditions/file_mtime.rb
 lib/god/conditions/flapping.rb
 lib/god/conditions/http_response_code.rb
 lib/god/conditions/lambda.rb
@@ -41,8 +42,11 @@ lib/god/conditions/simple_response.rb
 lib/god/conditions/tries.rb
 lib/god/configurable.rb
 lib/god/contact.rb
+lib/god/contacts/campfire.rb
 lib/god/contacts/email.rb
 lib/god/contacts/jabber.rb
+lib/god/contacts/twitter.rb
+lib/god/contacts/webhook.rb
 lib/god/dependency_graph.rb
 lib/god/diagnostics.rb
 lib/god/driver.rb
@@ -65,6 +69,7 @@ lib/god/task.rb
 lib/god/timeline.rb
 lib/god/trigger.rb
 lib/god/watch.rb
+service.rb
 site/images/banner.jpg
 site/images/bg.gif
 site/images/bg_grey.gif
@@ -98,6 +103,7 @@ test/configs/daemon_polls/daemon_polls.god
 test/configs/daemon_polls/simple_server.rb
 test/configs/degrading_lambda/degrading_lambda.god
 test/configs/degrading_lambda/tcp_server.rb
+test/configs/lifecycle/lifecycle.god
 test/configs/matias/matias.god
 test/configs/real.rb
 test/configs/running_load/running_load.god
@@ -109,6 +115,7 @@ test/configs/test.rb
 test/helper.rb
 test/suite.rb
 test/test_behavior.rb
+test/test_campfire.rb
 test/test_condition.rb
 test/test_conditions_disk_usage.rb
 test/test_conditions_http_response_code.rb
@@ -133,3 +140,4 @@ test/test_task.rb
 test/test_timeline.rb
 test/test_trigger.rb
 test/test_watch.rb
+test/test_webhook.rb

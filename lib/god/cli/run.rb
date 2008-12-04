@@ -34,6 +34,9 @@ module God
       end
       
       def default_run
+        # make sure we have STDIN/STDOUT redirected immediately
+        setup_logging
+
         # start attached pid watcher if necessary
         if @options[:attach]
           self.attach
@@ -64,6 +67,7 @@ module God
           
           load_config @options[:config]
         end
+        setup_logging
       end
       
       def run_in_front
@@ -74,18 +78,6 @@ module God
         end
         
         default_run
-        
-        log_file = God.log_file
-        log_file = File.expand_path(@options[:log]) if @options[:log]        
-        if log_file
-          puts "Sending output to log file: #{log_file}"
-          
-          # reset file descriptors
-          STDIN.reopen "/dev/null"
-          STDOUT.reopen(log_file, "a")
-          STDERR.reopen STDOUT
-          STDOUT.sync = true
-        end
       end
       
       def run_daemonized
@@ -95,14 +87,6 @@ module God
         pid = fork do
           begin
             require 'god'
-            
-            log_file = @options[:log] || God.log_file || "/dev/null"
-            
-            # reset file descriptors
-            STDIN.reopen "/dev/null"
-            STDOUT.reopen(log_file, "a")
-            STDERR.reopen STDOUT
-            STDOUT.sync = true
             
             # set pid if requested
             if @options[:pid] # and as deamon
@@ -140,6 +124,21 @@ module God
         ::Process.detach pid
         
         exit
+      end
+      
+      def setup_logging
+        log_file = God.log_file
+        log_file = File.expand_path(@options[:log]) if @options[:log]
+        log_file = "/dev/null" if !log_file && @options[:daemonize]
+        if log_file
+          puts "Sending output to log file: #{log_file}" unless @options[:daemonize]
+          
+          # reset file descriptors
+          STDIN.reopen "/dev/null"
+          STDOUT.reopen(log_file, "a")
+          STDERR.reopen STDOUT
+          STDOUT.sync = true
+        end
       end
       
       def load_config(config)
